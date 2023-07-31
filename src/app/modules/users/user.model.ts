@@ -5,7 +5,7 @@ import config from '../../../config';
 import { IUser, UserModel } from './user.interface';
 
 
-const userSchema = new Schema<IUser, UserModel>(
+const userSchema = new Schema<IUser , UserModel>(
   {
     name: {
       type: String,
@@ -36,20 +36,33 @@ const userSchema = new Schema<IUser, UserModel>(
 );
 
 userSchema.methods.isEmailExist = async function (email: string): Promise<Partial<IUser | null>> {
-  return await this. model('User').findOne(
+  return await User.findOne(
     { email },
     { email: 1 }
   ).lean();
 };
 
-userSchema.methods.isUsernameExist = async function (username: string): Promise<Partial<Pick<IUser, 'username'>>> {
-  return await this.model('User').findOne(
+userSchema.methods.isUsernameExist = async function (username: string): 
+Promise<Partial<Pick<IUser, 'username'> | null>> {
+  return await User.findOne(
     { username },
     { username: 1 }
   ).lean();
 };
 
-userSchema.methods.isPasswordMatch = async function (givenPassword: string, savedPassword: string): Promise<boolean> {
+userSchema.statics.isUserExist = async function (
+  email: string
+): Promise<
+  IUser | null> {
+  
+  return await User.findOne(
+    { email }
+    // { email: 1, password: 1, username: 1 }
+  ).lean();
+};
+
+userSchema.statics.isPasswordMatch = async function (givenPassword: string, savedPassword: string): Promise<boolean> {
+    
   return await bcrypt.compare(givenPassword, savedPassword); // Changed 'compareSync' to 'compare'
 };
 

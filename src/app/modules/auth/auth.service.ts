@@ -1,40 +1,39 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError';
 import { IUser } from '../users/user.interface';
 import { User } from '../users/user.model';
-const loginUser = async (payload: IUser): Promise<IUser | null> => {
+const loginUser = async (payload: IUser): Promise<Partial<IUser | null>> => {
+  const { email, password:loginPassworde } = payload;
+  
 
-  const {email ,password} = payload;
-
-  const isEmailExist = await User.isEmailExist(email);
-  if (!isEmailExist) {
+  const isUserExist = await User.isUserExist(email);
+  if (!isUserExist) {
     throw new ApiError(httpStatus.CONFLICT, 'this email is not correct');
   }
 
-  const user = await User.findOne({email});
-  const isPasswordMatch = await User.isPasswordMatch(password, user?.password as string);
+  const user = await User.findOne({ email },{password:+1,email:1,username:1});  
+  const isPasswordMatch = await User.isPasswordMatch( loginPassworde, user?.password as string);
 
-  if(!isPasswordMatch){
+  if (!isPasswordMatch) {
     throw new ApiError(httpStatus.CONFLICT, 'your password is not correct.');
   }
 
-  return user;
+  return isUserExist;
 };
 
 const signUpUser = async (userData: IUser): Promise<Partial<IUser | null>> => {
   const { email, username } = userData;
-  
-  console.log('email', email,username);
-  
 
-  const isEmailExist = await User.isEmailExist(email)
-  const isUsernameExist = await User.isUsernameExist(username);
+  const isUserExist = await User.isUserExist(email) as IUser;
 
-  if (isEmailExist) {
-    throw new ApiError(httpStatus.CONFLICT, 'this user is already registered');
+  if (isUserExist) {
+    throw new ApiError(httpStatus.CONFLICT, 'this email is already registered');
   }
+  const isUsernameExist = await User.findOne({username});
   if (isUsernameExist) {
-    throw new ApiError(httpStatus.CONFLICT, 'this username is already used.');
+    throw new ApiError(httpStatus.CONFLICT, 'This username is already used.');
   }
 
   const newUser = await User.create(userData);
