@@ -10,7 +10,6 @@ import { BookService } from './book.service';
 
 
 const createBook = catchAsync(async (req: Request, res: Response) => {
-  
   const result = await BookService.createBook(req.body)
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -41,19 +40,18 @@ const getSingleBook = catchAsync(async (req: Request, res: Response) => {
     status: 'success',
     data: result,
   });
-  // next();
 });
 
-// const updateBook = catchAsync(async (req: Request, res: Response) => {
-//   const id = req.params.id;
-//   const data = req.body;
-//   const result = await BookService.updateBook(id, data);
-//   sendResponse(res, {
-//     statusCode: httpStatus.OK,
-//     status: 'success',
-//     data: result,
-//   });
-// });
+const updateBook = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const data = req.body;
+  const result = await BookService.updateBook(id, data);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    status: 'success',
+    data: result,
+  });
+});
 
 const deleteBook = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
@@ -64,10 +62,26 @@ const deleteBook = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+
+
+const addReview = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.bookId;
+  const reviewData = req.body;
+  const result = await BookService.addReview(id, reviewData)
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    status: 'success',
+    message:"Review added successfully",
+    data: result,
+  });
+});
+
+
 export const BookController = {
   createBook,
   getAllBook,
   getSingleBook,
-  // updateBook,
-  deleteBook
+  updateBook,
+  deleteBook,
+  addReview
 };

@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import httpStatus from 'http-status';
 import { SortOrder } from 'mongoose';
+import ApiError from '../../../errors/ApiError';
 import { paginationHelper } from '../../../helpers/paginationHelper';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOption } from '../../../interfaces/pagenation';
@@ -47,11 +49,11 @@ const getAllBook = async (
   //       }
   //     ]
   //   }
-  
+
   // ];
 
-  console.log("searchTearm",searchTerm,"filterData",filtersData);
-  
+  console.log('searchTearm', searchTerm, 'filterData', filtersData);
+
   if (searchTerm) {
     andConditions.push({
       $or: bookSearchableFields.map(field => ({
@@ -62,7 +64,6 @@ const getAllBook = async (
       })),
     });
   }
-  
 
   // it's for filtering
   // if (Object.keys(filtersData).length) {
@@ -91,11 +92,6 @@ const getAllBook = async (
       }),
     });
   }
-  
-
-
-
-
 
   const { page, limit, skype, sortBy, sortOrder } =
     paginationHelper.calculatePagination(paginationOption);
@@ -130,50 +126,47 @@ const getAllBook = async (
   };
 };
 
-const getSingleBook = async ( bookId: string): Promise<IBook | null> => {
-  return await Book.findById(bookId)
+const getSingleBook = async (bookId: string): Promise<IBook | null> => {
+  return await Book.findById(bookId);
 };
 
-// const updateBook = async (
-//   BookId: string,
-//   payload: Partial<IBook>
-// ): Promise<IBook | null> => {
-//   const isExist = await Book.findOne({ id: BookId });
+const updateBook = async (
+  BookId: string,
+  payload: Partial<IBook>
+): Promise<IBook | null> => {
+  const isExist = await Book.findById(BookId);
 
-//   if (!isExist) {
-//     throw new ApiError(httpStatus.NOT_FOUND, 'Book not found');
-//   }
+  if (!isExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Book not found');
+  }
 
-//   const { name, ...BookData } = payload;
+  const { ...BookData } = payload;
 
-//   const updatedBookData: Partial<IBook> = { ...BookData };
-
-//   // console.log(guardian, localGuardian);
-
-//   // dynamically updating name
-//   if (name && Object.keys(name).length > 0) {
-//     Object.keys(name).forEach(key => {
-//       const nameKey = `name.${key}`;
-//       (updatedBookData as any)[nameKey] = name[key as keyof typeof name];
-//     });
-//   }
-
-//   return await Book.findOneAndUpdate({ id: BookId }, updatedBookData, {
-//     new: true,
-//   });
-// };
+  const updatedBookData: Partial<IBook> = { ...BookData };
+  return await Book.findOneAndUpdate({ _id: BookId }, updatedBookData, {
+    new: true,
+  });
+};
 
 const deleteBook = async (bookId: string): Promise<IBook | null> => {
-  return  await Book.findByIdAndDelete(bookId);
-
+  return await Book.findByIdAndDelete(bookId);
 };
 
+const addReview = async (id: string, payload: IBook): Promise<void> => {
+  await Book.updateOne(
+    { _id: id },
+    {
+      $push: { reviews: payload },
+    }
+  );
+};
 export const BookService = {
   createBook,
   getAllBook,
   getSingleBook,
-  // updateBook,
+  updateBook,
   deleteBook,
+  addReview,
 };
 // http://localhost:5000/api/v1/books?pae=1&limit=2&sortBy=title&sortOrder=desc
 
