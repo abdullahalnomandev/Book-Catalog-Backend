@@ -8,8 +8,7 @@ import { IBook, IBookFilters } from './book.interface';
 import { Book } from './book.model';
 
 const createBook = async (payload: IBook): Promise<IBook> => {
-  
-  return  await Book.create(payload);
+  return await Book.create(payload);
 };
 
 const getAllBook = async (
@@ -17,9 +16,41 @@ const getAllBook = async (
   paginationOption: IPaginationOption
 ): Promise<IGenericResponse<IBook[]>> => {
   const { searchTerm, ...filtersData } = filters;
-  
   const andConditions = [];
 
+  const andConditionss = [
+    // it's for searching
+    {
+      $or: [
+        {
+          title: {
+            $regex: searchTerm,
+            $options: 'i',
+          },
+        },
+        {
+          gene: {
+            $regex: searchTerm,
+            $options: 'i',
+          },
+        },
+      ],
+    },
+    // it's for filtering
+    {
+      $and:[
+        {
+          genre: filtersData.genre,
+        },
+        {
+          publicationDate: filtersData.publicationDate,
+        }
+      ]
+    }
+  
+  ];
+
+  console.log("searchTearm",searchTerm,"filterData",filtersData);
   
   if (searchTerm) {
     andConditions.push({
@@ -31,18 +62,45 @@ const getAllBook = async (
       })),
     });
   }
+  
+
+  // it's for filtering
+  // if (Object.keys(filtersData).length) {
+  //   andConditions.push({
+  //     $and: Object.entries(filtersData).map(([field, value]) => ({
+  //       [field]: value,
+  //     })),
+  //   });
+  // }
 
   if (Object.keys(filtersData).length) {
     andConditions.push({
-      $and: Object.entries(filtersData).map(([field, value]) => ({
-        [field]: value,
-      })),
+      $and: Object.entries(filtersData).map(([field, value]) => {
+        if (field === 'publicationDate') {
+          const year = value.substring(0, 4);
+          return {
+            $expr: {
+              $eq: [{ $substr: ['$publicationDate', 0, 4] }, year],
+            },
+          };
+        } else {
+          return {
+            [field]: value,
+          };
+        }
+      }),
     });
   }
+  
+
+
+
+
 
   const { page, limit, skype, sortBy, sortOrder } =
     paginationHelper.calculatePagination(paginationOption);
 
+  // it's for shorting
   const sortCondition: { [key: string]: SortOrder } = {};
   if (sortBy && sortOrder) {
     sortCondition[sortBy] = sortOrder;
@@ -50,7 +108,6 @@ const getAllBook = async (
 
   const whereCondition =
     andConditions.length > 0 ? { $and: andConditions } : {};
-console.log(whereCondition.$and);
 
   const count = await Book.countDocuments(whereCondition);
 
@@ -127,4 +184,6 @@ export const BookService = {
   // updateBook,
   // deleteBook,
 };
-// http://localhost:5000/api/v1/books?pae=1&limit=2&sortBy=title&sortOrder=desc 
+// http://localhost:5000/api/v1/books?pae=1&limit=2&sortBy=title&sortOrder=desc
+
+// -07-31T00:00:00.000Z
