@@ -10,7 +10,7 @@ import { BookService } from './book.service';
 
 
 const createBook = catchAsync(async (req: Request, res: Response) => {
-
+  
   const result = await BookService.createBook(req.body)
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -24,6 +24,7 @@ const createBook = catchAsync(async (req: Request, res: Response) => {
 const getAllBook = catchAsync(async (req: Request, res: Response) => {
   const filters = pick(req.query, bookFilterableFields);
   const paginationOption = pick(req.query, paginationFields);
+  
   const result = await BookService.getAllBook(filters, paginationOption);
   sendResponse(res, {
     statusCode: httpStatus.OK,

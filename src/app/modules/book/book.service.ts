@@ -8,6 +8,7 @@ import { IBook, IBookFilters } from './book.interface';
 import { Book } from './book.model';
 
 const createBook = async (payload: IBook): Promise<IBook> => {
+  
   return  await Book.create(payload);
 };
 
@@ -16,9 +17,10 @@ const getAllBook = async (
   paginationOption: IPaginationOption
 ): Promise<IGenericResponse<IBook[]>> => {
   const { searchTerm, ...filtersData } = filters;
-
+  
   const andConditions = [];
 
+  
   if (searchTerm) {
     andConditions.push({
       $or: bookSearchableFields.map(field => ({
@@ -48,6 +50,7 @@ const getAllBook = async (
 
   const whereCondition =
     andConditions.length > 0 ? { $and: andConditions } : {};
+console.log(whereCondition.$and);
 
   const count = await Book.countDocuments(whereCondition);
 
@@ -124,3 +127,4 @@ export const BookService = {
   // updateBook,
   // deleteBook,
 };
+// http://localhost:5000/api/v1/books?pae=1&limit=2&sortBy=title&sortOrder=desc 
