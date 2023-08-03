@@ -18,37 +18,37 @@ const getAllBook = async (
   const { searchTerm, ...filtersData } = filters;
   const andConditions = [];
 
-  const andConditionss = [
-    // it's for searching
-    {
-      $or: [
-        {
-          title: {
-            $regex: searchTerm,
-            $options: 'i',
-          },
-        },
-        {
-          gene: {
-            $regex: searchTerm,
-            $options: 'i',
-          },
-        },
-      ],
-    },
-    // it's for filtering
-    {
-      $and:[
-        {
-          genre: filtersData.genre,
-        },
-        {
-          publicationDate: filtersData.publicationDate,
-        }
-      ]
-    }
+  // const andConditionss = [
+  //   // it's for searching
+  //   {
+  //     $or: [
+  //       {
+  //         title: {
+  //           $regex: searchTerm,
+  //           $options: 'i',
+  //         },
+  //       },
+  //       {
+  //         gene: {
+  //           $regex: searchTerm,
+  //           $options: 'i',
+  //         },
+  //       },
+  //     ],
+  //   },
+  //   // it's for filtering
+  //   {
+  //     $and:[
+  //       {
+  //         genre: filtersData.genre,
+  //       },
+  //       {
+  //         publicationDate: filtersData.publicationDate,
+  //       }
+  //     ]
+  //   }
   
-  ];
+  // ];
 
   console.log("searchTearm",searchTerm,"filterData",filtersData);
   
@@ -130,13 +130,9 @@ const getAllBook = async (
   };
 };
 
-// const getSingleBook = async (
-//   BookId: string
-// ): Promise<IBook | null> => {
-//   return await Book.findById(BookId)
-//     .populate('academicDepartment')
-//     .populate('academicBook');
-// };
+const getSingleBook = async ( bookId: string): Promise<IBook | null> => {
+  return await Book.findById(bookId)
+};
 
 // const updateBook = async (
 //   BookId: string,
@@ -167,22 +163,17 @@ const getAllBook = async (
 //   });
 // };
 
-// const deleteBook = async (BookId: string): Promise<IBook | null> => {
-//   const Book = await Book.findByIdAndDelete(BookId)
-//     .populate('academicDepartment')
-//     .populate('academicBook');
+const deleteBook = async (bookId: string): Promise<IBook | null> => {
+  return  await Book.findByIdAndDelete(bookId);
 
-//   (await User.findOneAndDelete({ id: Book?.id })) as IStudent;
-
-//   return Book;
-// };
+};
 
 export const BookService = {
   createBook,
   getAllBook,
-  // getSingleBook,
+  getSingleBook,
   // updateBook,
-  // deleteBook,
+  deleteBook,
 };
 // http://localhost:5000/api/v1/books?pae=1&limit=2&sortBy=title&sortOrder=desc
 
