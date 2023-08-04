@@ -5,9 +5,9 @@ import ApiError from '../../../errors/ApiError';
 import { IUser } from '../users/user.interface';
 import { User } from '../users/user.model';
 const loginUser = async (payload: IUser): Promise<Partial<IUser | null>> => {
+    
   const { email, password:loginPassworde } = payload;
   
-
   const isUserExist = await User.isUserExist(email);
   if (!isUserExist) {
     throw new ApiError(httpStatus.CONFLICT, 'this email is not correct');
@@ -20,7 +20,11 @@ const loginUser = async (payload: IUser): Promise<Partial<IUser | null>> => {
     throw new ApiError(httpStatus.CONFLICT, 'your password is not correct.');
   }
 
-  return isUserExist;
+  return {
+    name:isUserExist.name,
+    email:isUserExist.email,
+    username:isUserExist.username
+  };
 };
 
 const signUpUser = async (userData: IUser): Promise<Partial<IUser | null>> => {

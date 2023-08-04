@@ -7,6 +7,10 @@ export const bookSchema = new Schema<IBook, BookModel>(
       type: String,
       required: [true, 'title is required'],
     },
+    username:{
+      type:String,
+      require:true
+    },
     author: {
       type: String,
       required: [true, 'author is required'],
@@ -30,7 +34,7 @@ export const bookSchema = new Schema<IBook, BookModel>(
           require: true,
         },
       },
-    ]
+    ],
   },
   {
     timestamps: true,

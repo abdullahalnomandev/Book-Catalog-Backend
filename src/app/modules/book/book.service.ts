@@ -10,6 +10,8 @@ import { IBook, IBookFilters } from './book.interface';
 import { Book } from './book.model';
 
 const createBook = async (payload: IBook): Promise<IBook> => {
+  console.log('createBook', payload);
+  
   return await Book.create(payload);
 };
 
@@ -142,6 +144,7 @@ const updateBook = async (
 
   const { ...BookData } = payload;
 
+  
   const updatedBookData: Partial<IBook> = { ...BookData };
   return await Book.findOneAndUpdate({ _id: BookId }, updatedBookData, {
     new: true,
